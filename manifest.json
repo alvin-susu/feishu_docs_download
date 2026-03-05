@@ -1,0 +1,37 @@
+{
+  "name": "feishu-wiki-assistant",
+  "displayName": "飞书知识库智能助手",
+  "version": "1.0.0",
+  "description": "OpenClaw与飞书机器人双向联动插件，实现知识库智能查询、自动归档、会议协作自动化",
+  "author": "ClawHub",
+  "license": "MIT",
+  "minOpenClawVersion": "2026.3.1",
+  "permissions": [
+    "feishu:api:read",
+    "feishu:api:write",
+    "feishu:message:receive",
+    "feishu:message:send",
+    "feishu:wiki:read",
+    "feishu:wiki:write",
+    "feishu:document:read",
+    "feishu:document:create"
+  ],
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node test/test.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "keywords": [
+    "feishu",
+    "wiki",
+    "assistant",
+    "ai",
+    "automation"
+  ],
+  "icon": "assets/icon.png"
+}
