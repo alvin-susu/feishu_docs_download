@@ -552,4 +552,4 @@ ${meetingData.summary}
     }
 }
 
-export default MeetingAssistant;
+module.exports = MeetingAssistant;

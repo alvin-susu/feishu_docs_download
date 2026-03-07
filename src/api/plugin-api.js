@@ -184,6 +184,9 @@ class PluginAPI {
             bot.appId = account.appId;
             bot.appSecret = account.appSecret;
 
+            // 获取访问令牌
+            await bot.refreshAccessToken();
+
             // 检查权限
             const PermissionChecker = require('../core/PermissionChecker');
             const permissionChecker = new PermissionChecker();

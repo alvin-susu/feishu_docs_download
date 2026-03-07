@@ -139,6 +139,9 @@ class FeishuWikiAssistant {
         tempBot.appId = account.appId;
         tempBot.appSecret = this.accountManager.decrypt(account.appSecret);
 
+        // 获取访问令牌
+        await tempBot.refreshAccessToken();
+
         // 检查权限
         const permissionReport = await this.permissionChecker.checkPermissions(tempBot);
 
