@@ -16,13 +16,25 @@ class BotAccountManager {
     }
 
     /**
-     * 获取或创建加密密钥
+     * 获取加密密钥 (安全版本)
+     * 🔒 安全要求: 必须设置ENCRYPTION_KEY环境变量，不使用硬编码密钥
      */
     getOrCreateEncryptionKey() {
-        // 在实际部署中，应该从安全存储中获取
-        // 这里简化处理，使用固定密钥（生产环境应该使用更安全的方式）
-        const key = process.env.ENCRYPTION_KEY || 'feishu-wiki-assistant-encryption-key-32';
-        return crypto.createHash('sha256').update(key).digest();
+        const key = process.env.ENCRYPTION_KEY;
+
+        // 🔒 安全检查: 强制要求环境变量，不使用硬编码密钥
+        if (!key || key.length < 32) {
+            throw new Error(
+                '安全错误: 必须设置ENCRYPTION_KEY环境变量(至少32字符)\n' +
+                '请在.env文件中设置: ENCRYPTION_KEY=your_32_character_random_string\n' +
+                '生成方法: openssl rand -hex 32'
+            );
+        }
+
+        // 如果密钥长度不足32字符，补充到32字符以上
+        const secureKey = key.length < 32 ? key.padEnd(32, '0') : key;
+
+        return crypto.createHash('sha256').update(secureKey).digest();
     }
 
     /**
@@ -115,7 +127,12 @@ class BotAccountManager {
             // 保存到本地
             await this.saveAccounts();
 
-            console.log(`✅ 新增机器人账号: ${name}`);
+            // 🔒 安全日志: 不记录敏感信息
+            if (process.env.LOG_LEVEL === 'debug') {
+                console.log(`✅ 新增机器人账号: ${name}`);
+            } else {
+                console.log('✅ 新增机器人账号成功');
+            }
             return account;
 
         } catch (error) {
@@ -202,7 +219,12 @@ class BotAccountManager {
         this.currentAccountId = accountId;
         await this.saveAccounts();
 
-        console.log(`✅ 切换至机器人: ${account.name}`);
+        // 🔒 安全日志: 不记录具体的机器人名称
+        if (process.env.LOG_LEVEL === 'debug') {
+            console.log(`✅ 切换至机器人: ${account.name}`);
+        } else {
+            console.log('✅ 机器人账号切换成功');
+        }
         return account;
     }
 
@@ -265,7 +287,12 @@ class BotAccountManager {
         await this.saveAccounts();
         await this.clearAccountIndex(accountId);
 
-        console.log(`✅ 删除机器人账号: ${account.name}`);
+        // 🔒 安全日志: 不记录删除的账号信息
+        if (process.env.LOG_LEVEL === 'debug') {
+            console.log(`✅ 删除机器人账号: ${account.name}`);
+        } else {
+            console.log('✅ 机器人账号删除成功');
+        }
         return true;
     }
 
@@ -368,8 +395,13 @@ class BotAccountManager {
             );
 
         } catch (error) {
-            console.error('保存账号失败:', error);
-            throw error;
+            // 🔒 安全错误处理: 不暴露内部错误详情
+            console.error('保存账号失败:', error.message);
+            // 记录详细错误到调试日志
+            if (process.env.LOG_LEVEL === 'debug') {
+                console.error('详细错误信息:', error);
+            }
+            throw new Error('账号保存失败，请检查配置和权限');
         }
     }
 
@@ -390,14 +422,24 @@ class BotAccountManager {
             this.accounts = new Map(loadedData.accounts);
             this.currentAccountId = loadedData.currentAccountId;
 
-            console.log(`✅ 加载 ${this.accounts.size} 个机器人账号`);
+            // 🔒 安全日志: 不暴露账号数量
+            if (process.env.LOG_LEVEL === 'debug') {
+                console.log(`✅ 加载 ${this.accounts.size} 个机器人账号`);
+            } else {
+                console.log('✅ 账号数据加载成功');
+            }
             return true;
 
         } catch (error) {
+            // 🔒 安全错误处理: 不暴露内部错误详情
             if (error.code === 'ENOENT') {
                 console.log('📝 未找到本地账号数据');
             } else {
-                console.error('加载账号失败:', error);
+                console.error('加载账号失败:', error.message);
+                // 记录详细错误到调试日志
+                if (process.env.LOG_LEVEL === 'debug') {
+                    console.error('详细错误信息:', error);
+                }
             }
             return false;
         }

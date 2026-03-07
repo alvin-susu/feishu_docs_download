@@ -15,6 +15,16 @@ pnpm-lock.yaml
 .env.test.local
 .env.production.local
 
+# 🔒 Security - Sensitive files
+*.secret
+*.credential
+*.key
+*.pem
+*.cert
+*.token
+passwords.json
+secrets.json
+
 # IDEs and editors
 .idea/
 .vscode/
@@ -65,11 +75,14 @@ pids/
 *.pid
 *.seed
 *.pid.lock
-# 运行时数据
+
+# 运行时数据 (包含账号凭证)
 data/
 
 # 临时测试文件
-test-single-doc.js
-test/*.png
-test/*.jpg
-test/*.jpeg
+# test/ 目录已清理，如需测试请重新创建
+
+# 🔒 Security - Audit and security files
+SECURITY-URGENT.md
+security-audit-*.md
+*.audit

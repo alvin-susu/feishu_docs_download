@@ -63,7 +63,12 @@ class FeishuWikiAssistant {
      */
     async initializeCurrentAccount(account) {
         try {
-            console.log(`🔑 初始化机器人账号: ${account.name}`);
+            // 🔒 安全日志: 不记录具体的机器人名称
+            if (process.env.LOG_LEVEL === 'debug') {
+                console.log(`🔑 初始化机器人账号: ${account.name}`);
+            } else {
+                console.log('🔑 初始化机器人账号...');
+            }
 
             // 创建机器人实例
             this.currentBot = new FeishuBot();
