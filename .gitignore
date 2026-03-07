@@ -1,0 +1,88 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 🔒 Security - Sensitive files
+*.secret
+*.credential
+*.key
+*.pem
+*.cert
+*.token
+passwords.json
+secrets.json
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build outputs
+dist/
+build/
+*.tgz
+*.tar.gz
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+
+# Plugin/Extension specific (if needed)
+# 根据你的飞书插件特性，可能需要忽略
+downloads/
+exports/
+cache/
+
+# Server specific
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# 运行时数据 (包含账号凭证)
+data/
+
+# 临时测试文件
+# test/ 目录已清理，如需测试请重新创建
+
+# 🔒 Security - Audit and security files
+SECURITY-URGENT.md
+security-audit-*.md
+*.audit
