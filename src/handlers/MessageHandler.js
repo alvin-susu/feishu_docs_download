@@ -6,7 +6,7 @@
 const DocumentLocator = require('../features/DocumentLocator');
 const ContentSearcher = require('../features/ContentSearcher');
 const AutoArchiver = require('../features/AutoArchiver');
-import MeetingAssistant from '../features/MeetingAssistant';
+const MeetingAssistant = require('../features/MeetingAssistant');
 
 class MessageHandler {
     constructor(assistant) {

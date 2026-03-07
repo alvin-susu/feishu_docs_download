@@ -1,7 +1,9 @@
 # 🐛 本地调试指南
 
 ## 快速开始
-
+飞书机器人id：cli_a9282ff886b8dbb6
+飞书机器人sercert：YZPhsMHUVrYkYhA9QwyRhhTJUaTOObaH
+飞书机器人名称：OpenClaw-Private
 ### 1. 安装依赖
 
 首先确保Node.js版本 >= 18.0.0，然后安装项目依赖：
