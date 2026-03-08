@@ -1,0 +1,181 @@
+{
+  "skill": {
+    "id": "feishu-wiki-assistant",
+    "name": "飞书知识库智能助手",
+    "version": "2.0.0",
+    "description": "OpenClaw × 飞书机器人智能联动插件，实现知识库智能查询、自动归档、会议协作自动化",
+    "author": "ClawHub",
+    "license": "MIT",
+    "homepage": "https://clawhub.com/skills/feishu-wiki-assistant",
+    "repository": "https://github.com/alvin-susu/feishu_docs_download",
+    "icon": "assets/icon.png",
+    "banner": "assets/banner.png"
+  },
+  "openclaw": {
+    "minVersion": "2026.3.1",
+    "maxVersion": "2027.0.0",
+    "platform": ["windows", "macos", "linux"]
+  },
+  "entry": {
+    "main": "src/index-updated.js",
+    "preload": "src/preload.js",
+    "renderer": "ui/config-panel.html"
+  },
+  "permissions": {
+    "network": {
+      "domains": ["open.feishu.cn", "*.feishu.cn"],
+      "description": "访问飞书开放平台API"
+    },
+    "storage": {
+      "local": true,
+      "size": "50MB",
+      "description": "本地存储账号信息和索引数据"
+    },
+    "crypto": {
+      "encryption": true,
+      "description": "加密存储敏感信息"
+    }
+  },
+  "features": {
+    "documentLocator": {
+      "name": "智能文档定位",
+      "description": "快速找到目标文档的精确链接",
+      "enabled": true
+    },
+    "contentSearcher": {
+      "name": "高效内容检索",
+      "description": "智能搜索知识库内容并返回摘要",
+      "enabled": true
+    },
+    "autoArchiver": {
+      "name": "自动智能归档",
+      "description": "新建文档并自动分类归档",
+      "enabled": true
+    },
+    "meetingAssistant": {
+      "name": "会议协作自动化",
+      "description": "自动提取待办事项，智能生成会议文档",
+      "enabled": true
+    },
+    "multiAccount": {
+      "name": "多账号支持",
+      "description": "支持绑定多个飞书机器人账号",
+      "enabled": true
+    }
+  },
+  "configuration": {
+    "type": "panel",
+    "url": "ui/config-panel.html",
+    "height": 600,
+    "width": 800,
+    "resizable": true
+  },
+  "environment": {
+    "required": {
+      "FEISHU_APP_ID": {
+        "description": "飞书机器人 AppID（从飞书开放平台获取）",
+        "sensitive": true
+      },
+      "FEISHU_APP_SECRET": {
+        "description": "飞书机器人 AppSecret（从飞书开放平台获取）",
+        "sensitive": true
+      },
+      "ENCRYPTION_KEY": {
+        "description": "数据加密密钥（用于本地敏感信息加密存储）",
+        "sensitive": true,
+        "generator": "node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
+      }
+    },
+    "optional": {
+      "WIKI_SPACE_ID": {
+        "description": "指定知识库空间 ID（用于批量下载功能，可选）",
+        "sensitive": false
+      }
+    }
+  },
+  "commands": [
+    {
+      "id": "feishu.find",
+      "title": "查找文档",
+      "description": "在飞书知识库中查找文档",
+      "icon": "🔍",
+      "shortcut": "Ctrl+Shift+F",
+      "handler": "src/commands/find.js"
+    },
+    {
+      "id": "feishu.search",
+      "title": "搜索内容",
+      "description": "搜索飞书知识库内容",
+      "icon": "📚",
+      "shortcut": "Ctrl+Shift+S",
+      "handler": "src/commands/search.js"
+    },
+    {
+      "id": "feishu.create",
+      "title": "创建文档",
+      "description": "在飞书中创建新文档",
+      "icon": "📝",
+      "shortcut": "Ctrl+Shift+N",
+      "handler": "src/commands/create.js"
+    },
+    {
+      "id": "feishu.todo",
+      "title": "添加待办",
+      "description": "在文档中添加待办事项",
+      "icon": "✅",
+      "handler": "src/commands/todo.js"
+    },
+    {
+      "id": "feishu.settings",
+      "title": "打开设置",
+      "description": "打开飞书助手设置面板",
+      "icon": "⚙️",
+      "handler": "src/commands/settings.js"
+    }
+  ],
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+  "keywords": [
+    "feishu",
+    "wiki",
+    "assistant",
+    "ai",
+    "automation",
+    "multi-account",
+    "clawhub",
+    "openclaw",
+    "knowledge-management",
+    "document-management"
+  ],
+  "categories": [
+    "productivity",
+    "integration",
+    "automation",
+    "enterprise"
+  ],
+  "languages": [
+    {
+      "code": "zh-CN",
+      "name": "简体中文",
+      "default": true
+    },
+    {
+      "code": "en-US",
+      "name": "English"
+    }
+  ],
+  "changelog": "CHANGELOG.md",
+  "documentation": {
+    "user": "USAGE.md",
+    "developer": "DEBUG-GUIDE.md",
+    "api": "docs/api.md"
+  },
+  "support": {
+    "email": "support@clawhub.com",
+    "url": "https://clawhub.com/support/feishu-wiki-assistant",
+    "issues": "https://github.com/alvin-susu/feishu_docs_download/issues"
+  }
+}
