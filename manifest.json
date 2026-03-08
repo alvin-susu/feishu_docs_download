@@ -1,9 +1,9 @@
 {
   "name": "feishu-wiki-assistant",
   "displayName": "飞书知识库智能助手",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "OpenClaw与飞书机器人双向联动插件，实现知识库智能查询、自动归档、会议协作自动化",
-  "author": "ClawHub",
+  "author": "alvin-susu",
   "license": "MIT",
   "minOpenClawVersion": "2026.3.1",
   "permissions": [
@@ -30,7 +30,8 @@
     "wiki",
     "assistant",
     "ai",
-    "automation"
-  ],
-  "icon": "assets/icon.png"
+    "automation",
+    "multi-account",
+    "knowledge-base"
+  ]
 }
