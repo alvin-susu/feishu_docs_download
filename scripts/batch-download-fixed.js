@@ -10,8 +10,8 @@ const path = require('path');
 const FeishuBot = require('../src/bot/FeishuBot');
 const BotAccountManager = require('../src/core/BotAccountManager');
 
-// CT-公交项目知识库配置
-const WIKI_SPACE_ID = '7604792184608410814';
+// 从环境变量或命令行参数获取知识库 ID
+const WIKI_SPACE_ID = process.env.WIKI_SPACE_ID || process.argv[3];
 
 class SmartBatchDownloader {
     constructor(outputDir) {
@@ -195,11 +195,15 @@ class SmartBatchDownloader {
     }
 
     async processDownload() {
+        if (!WIKI_SPACE_ID) {
+            throw new Error('请设置环境变量 WIKI_SPACE_ID 或作为第三个参数传入');
+        }
+
         const separator = '='.repeat(60);
         console.log(separator);
         console.log('🚀 飞书知识库智能批量下载工具');
         console.log(separator);
-        console.log(`📚 知识库: CT-公交项目知识库`);
+        console.log(`📚 知识库 ID: ${WIKI_SPACE_ID}`);
         console.log(`📂 保存目录: ${this.outputDir}`);
         console.log(separator);
 
