@@ -418,6 +418,35 @@ class BotAccountManager {
                 throw new Error('账号数据版本不匹配');
             }
 
+            // 🔧 自动检测并迁移旧数据格式
+            // 旧格式: accounts是对象数组 [{id, name, ...}]
+            // 新格式: accounts是[accountId, accountObject]对数组 [[id, {id, name, ...}]]
+            if (Array.isArray(loadedData.accounts) && loadedData.accounts.length > 0) {
+                const firstAccount = loadedData.accounts[0];
+
+                // 检测是否为旧格式（普通对象数组）
+                if (Array.isArray(firstAccount) === false && typeof firstAccount === 'object' && firstAccount.id) {
+                    console.log('🔄 检测到旧数据格式，正在自动迁移...');
+
+                    // 转换为新格式: [[id, account], [id, account], ...]
+                    const newFormatAccounts = loadedData.accounts.map(account => [
+                        account.id,
+                        account
+                    ]);
+
+                    loadedData.accounts = newFormatAccounts;
+
+                    // 保存迁移后的数据
+                    await fs.writeFile(
+                        this.storagePath,
+                        JSON.stringify(loadedData, null, 2),
+                        'utf-8'
+                    );
+
+                    console.log('✅ 数据迁移完成');
+                }
+            }
+
             // 恢复账号数据
             this.accounts = new Map(loadedData.accounts);
             this.currentAccountId = loadedData.currentAccountId;

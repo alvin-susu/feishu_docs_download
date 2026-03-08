@@ -1,6 +1,6 @@
 {
   "name": "feishu-wiki-assistant",
-  "version": "2.0.0",
+  "version": "2.1.1",
   "description": "飞书知识库智能助手 - OpenClaw插件（支持多账号）",
   "main": "src/index-updated.js",
   "scripts": {
