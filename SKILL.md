@@ -44,9 +44,10 @@ openclaw
 
 ### 3. 配置说明
 
-插件需要以下环境变量配置（仅存储在本地）：
+#### 方式一：单机器人配置（简单场景）
 
-#### 必需配置
+如果只需要一个飞书机器人，直接在OpenClaw环境变量中配置：
+
 ```env
 # 飞书机器人AppID (从飞书开放平台获取)
 FEISHU_APP_ID=your_app_id_here
@@ -57,6 +58,33 @@ FEISHU_APP_SECRET=your_app_secret_here
 # 数据加密密钥 (使用下方命令生成)
 ENCRYPTION_KEY=your_generated_encryption_key
 ```
+
+#### 方式二：多机器人配置（推荐）
+
+如果需要管理多个飞书机器人（例如：不同部门、不同知识库）：
+
+```bash
+# 1. 生成加密密钥并配置
+export ENCRYPTION_KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex')}")
+
+# 2. 添加第一个机器人
+node scripts/account-cli.js add
+
+# 3. 添加更多机器人（可选）
+node scripts/account-cli.js add
+
+# 4. 查看所有机器人
+node scripts/account-cli.js list
+
+# 5. 切换机器人
+node scripts/account-cli.js switch <账号ID>
+```
+
+**多机器人优势**：
+- ✅ 支持多个飞书机器人账号
+- ✅ 每个机器人独立的权限和知识库
+- ✅ 方便切换不同机器人
+- ✅ 账号信息加密存储
 
 #### 生成加密密钥
 ```bash
@@ -130,10 +158,34 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 - 本地索引数据和下载的文档仅保存在用户本地
 - 批量下载功能会在本地保存文档内容和元数据
 
-### 本地服务说明
-- 本项目包含开发服务器（server/dev-server.js）和配置面板（ui/config-panel.html）
-- 这些组件仅在本地运行（localhost），不对外开放
-- 生产环境部署时，应确保不暴露这些本地服务端点
+### 多机器人账号管理
+
+本插件支持管理多个飞书机器人账号，适用于多知识库场景：
+
+```bash
+# 添加第一个机器人
+node scripts/account-cli.js add
+
+# 查看所有机器人
+node scripts/account-cli.js list
+
+# 切换机器人
+node scripts/account-cli.js switch <账号ID>
+
+# 删除机器人
+node scripts/account-cli.js delete <账号ID>
+```
+
+**账号存储**：
+- 所有机器人账号信息加密存储在 `data/accounts.json`
+- 使用环境变量 `ENCRYPTION_KEY` 进行加密
+- 支持添加多个机器人（建议不超过5个）
+- 每个机器人独立的权限和索引
+
+**使用方式**：
+1. 通过CLI工具添加多个机器人账号
+2. 使用CLI工具切换当前使用的机器人
+3. 在OpenClaw中自动使用当前机器人的权限
 
 ### 安全审计
 本项目已通过以下安全检查：

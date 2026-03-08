@@ -26,41 +26,165 @@
 - ✅ 轻量化索引，仅缓存核心信息
 - ✅ 切换账号时自动切换对应索引
 
-### 5. 现代化配置界面
-- ✅ ClawHub插件面板原生适配
-- ✅ 直观的账号管理界面
-- ✅ 实时状态显示和操作反馈
+### 5. 命令行管理工具
+- ✅ 提供CLI工具管理多个账号
+- ✅ 交互式添加、删除、切换账号
+- ✅ 安全的加密存储机制
 
 ## 🔧 使用指南
 
+### 环境配置
+
+首先配置必需的环境变量：
+
+```bash
+# 在项目根目录创建 .env 文件
+cat > .env << EOF
+# 数据加密密钥（必需，用于加密存储账号信息）
+ENCRYPTION_KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+EOF
+```
+
 ### 添加机器人账号
 
-1. **打开配置面板**
-   - 在OpenClaw客户端中打开插件控制面板
-   - 点击"添加机器人"按钮
+使用命令行工具添加第一个机器人：
 
-2. **填写配置信息**
-   - 机器人备注：自定义名称，便于区分（如"行政知识库机器人"）
-   - AppID：飞书机器人的应用ID
-   - AppSecret：飞书机器人的应用密钥
+```bash
+# 添加机器人（交互式）
+node scripts/account-cli.js add
+```
 
-3. **自动验证和同步**
-   - 系统自动验证账号有效性
-   - 检查机器人权限配置
-   - 构建权限内的文档索引
+按照提示输入：
+1. **机器人备注**：自定义名称，便于区分（如"行政知识库"）
+2. **AppID**：飞书机器人的应用ID（如 `cli_xxxxxxxxxxxxxxxx`）
+3. **AppSecret**：飞书机器人的应用密钥
+
+示例：
+```
+🤖 添加飞书机器人账号
+
+请输入机器人备注 (如: 行政知识库, 最多10字符): 行政知识库
+请输入飞书机器人 AppID: cli_xxxxxxxxxxxxxxxx
+请输入飞书机器人 AppSecret: ••••••••
+
+✅ 成功添加机器人: 行政知识库
+   AppID: cli_xxxxxxxxxxxxxxxx
+   账号ID: bot_1234567890_abc123
+   🔸 已自动设为当前账号
+```
+
+### 添加更多机器人账号
+
+重复上述命令添加多个机器人：
+
+```bash
+# 添加第二个机器人
+node scripts/account-cli.js add
+
+# 添加第三个机器人
+node scripts/account-cli.js add
+```
+
+### 查看所有机器人账号
+
+```bash
+# 列出所有机器人
+node scripts/account-cli.js list
+```
+
+输出示例：
+```
+🤖 已绑定机器人列表
+
+🔸 [1] 行政知识库
+      AppID: cli_xxxxxxxxxxxxxxxx
+      状态: ✅ 已激活
+      ID: bot_1234567890_abc123
+      最后同步: 2026-03-08 14:30:00
+
+  [2] 研发文档库
+      AppID: cli_yyyyyyyyyyyyyyyy
+      状态: ✅ 已激活
+      ID: bot_0987654321_xyz789
+      最后同步: 2026-03-08 15:20:00
+```
 
 ### 切换当前账号
 
-1. 在账号列表中找到目标机器人
-2. 点击"切换为当前"按钮
-3. 系统自动加载该机器人的权限和索引
+在OpenClaw中使用不同的机器人：
 
-### 账号管理操作
+```bash
+# 切换到指定机器人
+node scripts/account-cli.js switch bot_0987654321_xyz789
+```
 
-每个账号支持以下操作：
-- **重新校验**：验证账号权限是否正常
-- **编辑**：修改账号配置信息
-- **删除**：移除账号并清除相关数据
+或者查看当前使用的是哪个机器人：
+
+```bash
+# 显示当前机器人
+node scripts/account-cli.js current
+```
+
+### 删除机器人账号
+
+```bash
+# 删除指定机器人
+node scripts/account-cli.js delete bot_1234567890_abc123
+
+# 确认删除
+确认删除机器人 "行政知识库"？此操作不可恢复 (yes/no): yes
+
+✅ 已删除机器人: 行政知识库
+```
+
+### 验证机器人权限
+
+```bash
+# 验证当前机器人
+node scripts/account-cli.js validate
+
+# 验证指定机器人
+node scripts/account-cli.js validate bot_0987654321_xyz789
+```
+
+## 🔧 命令参考
+
+```bash
+# 添加机器人
+node scripts/account-cli.js add
+
+# 查看所有机器人
+node scripts/account-cli.js list
+
+# 显示当前机器人
+node scripts/account-cli.js current
+
+# 切换机器人
+node scripts/account-cli.js switch <账号ID>
+
+# 删除机器人
+node scripts/account-cli.js delete <账号ID>
+
+# 验证机器人权限
+node scripts/account-cli.js validate [账号ID]
+
+# 显示帮助
+node scripts/account-cli.js
+```
+
+## 📁 数据存储
+
+所有机器人账号信息加密存储在：
+
+```
+~/WebstormProjects/feishu_docs_download/data/accounts.json
+```
+
+**安全特性**：
+- ✅ 使用AES-256加密
+- ✅ 密钥来自环境变量 `ENCRYPTION_KEY`
+- ✅ 仅存储在本地，不上传到任何服务器
+- ✅ 每个机器人的AppSecret单独加密
 
 ## 🔐 安全机制
 
