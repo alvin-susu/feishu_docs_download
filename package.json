@@ -31,14 +31,14 @@
   "author": "ClawHub",
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=16.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/feishu-wiki-assistant.git"
+    "url": "https://github.com/alvin-susu/feishu_docs_download.git"
   },
   "bugs": {
-    "url": "https://github.com/your-org/feishu-wiki-assistant/issues"
+    "url": "https://github.com/alvin-susu/feishu_docs_download/issues"
   },
-  "homepage": "https://github.com/your-org/feishu-wiki-assistant#readme"
+  "homepage": "https://github.com/alvin-susu/feishu_docs_download#readme"
 }
