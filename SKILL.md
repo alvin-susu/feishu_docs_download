@@ -104,12 +104,12 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ## 📚 详细文档
 
-- [用户配置指南](docs/guides/USER-GUIDE.md) - 完整的安装配置教程
-- [使用说明](docs/guides/USAGE.md) - 功能使用指南
-- [调试指南](docs/guides/DEBUG-GUIDE.md) - 问题排查和调试
-- [安全指南](docs/security/SECURITY-GUIDE.md) - 安全配置和应急处理
-- [部署指南](docs/deployment/DEPLOYMENT-GUIDE.md) - 生产环境部署
-- [多账号管理](docs/about/MULTI-ACCOUNT.md) - 多账号功能说明
+- [用户配置指南](https://github.com/alvin-susu/feishu_docs_download/blob/main/docs/guides/USER-GUIDE.md) - 完整的安装配置教程
+- [使用说明](https://github.com/alvin-susu/feishu_docs_download/blob/main/docs/guides/USAGE.md) - 功能使用指南
+- [调试指南](https://github.com/alvin-susu/feishu_docs_download/blob/main/docs/guides/DEBUG-GUIDE.md) - 问题排查和调试
+- [安全指南](https://github.com/alvin-susu/feishu_docs_download/blob/main/docs/security/SECURITY-GUIDE.md) - 安全配置和应急处理
+- [部署指南](https://github.com/alvin-susu/feishu_docs_download/blob/main/docs/deployment/DEPLOYMENT-GUIDE.md) - 生产环境部署
+- [多账号管理](https://github.com/alvin-susu/feishu_docs_download/blob/main/docs/about/MULTI-ACCOUNT.md) - 多账号功能说明
 
 ---
 
@@ -204,7 +204,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ## 📞 获取帮助
 
-- 📖 [完整文档](docs/)
+- 📖 [完整文档](https://github.com/alvin-susu/feishu_docs_download/tree/main/docs)
 - 🐛 [提交Issue](https://github.com/alvin-susu/feishu_docs_download/issues)
 - 💬 [项目讨论](https://github.com/alvin-susu/feishu_docs_download/discussions)
 
