@@ -208,7 +208,40 @@ class MessageHandler {
 
             case 'search':
             case '搜索':
-                return await this.contentSearcher.search(args);
+                // 检查是否是搜索知识库内容
+                if (args && !args.includes('历史') && !args.includes('chat')) {
+                    return await this.contentSearcher.search(args);
+                } else {
+                    // 搜索历史对话
+                    const searchKeyword = this.parseSearchKeyword(args.replace(/历史|chat/g, '').trim());
+                    if (searchKeyword) {
+                        return await this.conversationSummarizer.searchKeyword(
+                            context.chatId,
+                            searchKeyword
+                        );
+                    } else {
+                        return '⚠️ 请提供搜索关键词\n\n用法: /search 关键词';
+                    }
+                }
+
+            case 'history':
+            case 'chat':
+                // 搜索历史对话
+                const historyKeyword = this.parseSearchKeyword(args);
+                if (historyKeyword) {
+                    return await this.conversationSummarizer.searchKeyword(
+                        context.chatId,
+                        historyKeyword
+                    );
+                } else {
+                    return await this.conversationSummarizer.analyzeHistory(
+                        context.chatId,
+                        {
+                            messageCount: this.parseMessageCount(args),
+                            analyzeType: 'summary'
+                        }
+                    );
+                }
 
             case 'create':
             case 'new':
@@ -220,54 +253,58 @@ class MessageHandler {
                     context
                 );
 
-            case 'stats':
-            case '统计':
-                return this.getStatsMessage();
-
             case 'index':
             case 'reindex':
                 return await this.handleReindex();
+
+            case 'indexstats':
+            case '索引统计':
+                return this.getIndexStatsMessage();
 
             case 'todo':
             case '待办':
                 return await this.meetingAssistant.addTodo(null, args, context);
 
-            // 历史对话相关命令
+            // 历史对话分析命令（纯查询功能）
             case 'summary':
             case 'summarize':
             case '总结':
-            case '历史':
-                return await this.conversationSummarizer.createFromHistory(
+            case 'analyze':
+            case '分析':
+                return await this.conversationSummarizer.analyzeHistory(
                     context.chatId,
                     {
                         messageCount: this.parseMessageCount(args),
-                        documentTitle: this.parseDocumentTitle(args),
-                        context: context
+                        analyzeType: 'summary'
                     }
                 );
 
             case 'meeting':
             case '会议记录':
-                return await this.conversationSummarizer.createFromHistory(
+            case '会议':
+                return await this.conversationSummarizer.analyzeHistory(
                     context.chatId,
                     {
                         messageCount: this.parseMessageCount(args),
-                        documentTitle: this.parseDocumentTitle(args),
-                        documentType: 'meeting',
-                        context: context
+                        analyzeType: 'meeting'
                     }
                 );
 
             case 'decision':
             case '决策':
-                return await this.conversationSummarizer.createFromHistory(
+                return await this.conversationSummarizer.analyzeHistory(
                     context.chatId,
                     {
                         messageCount: this.parseMessageCount(args),
-                        documentTitle: this.parseDocumentTitle(args),
-                        documentType: 'decision',
-                        context: context
+                        analyzeType: 'decision'
                     }
+                );
+
+            case 'stats':
+            case '统计对话':
+                return await this.conversationSummarizer.getConversationStats(
+                    context.chatId,
+                    this.parseMessageCount(args)
                 );
 
             default:
@@ -298,6 +335,17 @@ class MessageHandler {
         // 提除数字后的文本作为标题
         const title = args.replace(/\d+/, '').trim();
         return title || null;
+    }
+
+    /**
+     * 解析搜索关键词
+     * @param {string} args - 命令参数
+     * @returns {string|null} 搜索关键词
+     */
+    parseSearchKeyword(args) {
+        // 去除数字和其他参数，保留关键词
+        const keyword = args.replace(/\d+/, '').trim();
+        return keyword || null;
     }
 
     /**
@@ -334,7 +382,7 @@ class MessageHandler {
 • 高效内容检索 - 搜索知识库内容
 • 自动智能归档 - 新建文档并自动分类
 • 会议协作自动化 - 提取待办、生成文档
-• 历史对话总结 - 基于聊天记录生成文档 ⭐ 新功能
+• 历史对话分析 - 查询和分析聊天记录 ⭐ 新功能
 
 💬 **使用方式**
 
@@ -354,37 +402,45 @@ class MessageHandler {
 • "添加待办：XX事项"
 • /todo 待办内容
 
-**5. 历史对话总结** ⭐ 新功能
-• /summary - 总结最近100条消息
-• /summary 200 - 总结最近200条消息
-• /summary 产品需求 - 总结并命名文档
-• /meeting - 生成会议记录
-• /decision - 生成决策记录
+**5. 历史对话分析** ⭐ 新功能（纯查询，不创建文档）
+• /summary - 分析最近100条消息
+• /summary 200 - 分析最近200条消息
+• /meeting - 分析会议内容
+• /decision - 分析决策内容
+• /history 关键词 - 搜索历史消息
+• /stats - 对话统计信息
 
 **6. 系统命令**
 • /help - 显示帮助
-• /stats - 查看索引统计
+• /indexstats - 知识库索引统计
 • /index - 重建索引
 
 💡 **提示**：您也可以直接用自然语言描述需求，我会智能识别您的意图！
 
 📖 **历史对话功能说明**：
-• 自动分析聊天内容，提取关键信息
-• 识别参与者、话题、待办事项和决策
-• 自动生成结构化文档并添加协作者
-• 支持会议记录、决策记录、对话总结等多种类型
+• /summary - 分析对话内容，返回摘要信息
+• /meeting - 提取会议相关信息（待办、决策等）
+• /decision - 提取决策内容
+• /history 关键词 - 搜索包含关键词的消息
+• /stats - 显示对话统计（活跃用户、热门话题等）
+
+🔄 **配合创建文档**：
+1. 先用 /summary 分析对话内容
+2. 查看分析结果（话题、待办、决策等）
+3. 基于分析结果手动创建文档：
+   /create 标题:内容
 
 ⚠️ **权限要求**：
-• im:message:readonly - 读取历史消息
-• im:chat - 获取聊天信息`;
+• im:message:readonly - 读取历史消息（必需）
+• im:chat - 获取聊天信息（必需）`;
 
 💡 **提示**：您也可以直接用自然语言描述需求，我会智能识别您的意图！`;
     }
 
     /**
-     * 获取统计消息
+     * 获取索引统计消息
      */
-    getStatsMessage() {
+    getIndexStatsMessage() {
         const stats = this.indexer.getStats();
 
         return `📊 知识库索引统计
