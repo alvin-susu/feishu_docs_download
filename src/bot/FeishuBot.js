@@ -406,6 +406,216 @@ class FeishuBot {
     async stop() {
         console.log('🛑 飞书机器人已停止');
     }
+
+    /**
+     * 获取对话历史消息
+     * @param {string} chatId - 对话ID（群聊或私聊）
+     * @param {Object} options - 选项
+     * @param {number} options.limit - 获取消息数量（默认50，最大100）
+     * @param {string} options.cursor - 分页游标
+     * @param {string} options.containerIdType - 容器ID类型: 'chat' | 'open_chat_id'
+     * @returns {Object} 消息列表和分页信息
+     */
+    async getChatHistory(chatId, options = {}) {
+        try {
+            const {
+                limit = 50,
+                cursor = '',
+                containerIdType = 'chat'
+            } = options;
+
+            // 限制最大数量
+            const pageSize = Math.min(limit, 100);
+
+            const response = await this.apiRequest('GET', `/im/v1/messages`, null, {
+                container_id_type: containerIdType,
+                container_id: chatId,
+                page_size: pageSize,
+                cursor: cursor
+            });
+
+            return {
+                messages: response.data.items || [],
+                hasMore: response.data.has_more || false,
+                cursor: response.data.page_token || ''
+            };
+
+        } catch (error) {
+            console.error('获取对话历史失败:', error);
+            throw new Error(`获取对话历史失败: ${error.message}`);
+        }
+    }
+
+    /**
+     * 获取所有历史消息（自动分页）
+     * @param {string} chatId - 对话ID
+     * @param {Object} options - 选项
+     * @param {number} options.maxMessages - 最大消息数量（默认200）
+     * @param {number} options.pageSize - 每页大小（默认50）
+     * @returns {Array} 消息列表
+     */
+    async getAllChatHistory(chatId, options = {}) {
+        const {
+            maxMessages = 200,
+            pageSize = 50
+        } = options;
+
+        const allMessages = [];
+        let cursor = '';
+        let hasMore = true;
+
+        while (hasMore && allMessages.length < maxMessages) {
+            const response = await this.getChatHistory(chatId, {
+                limit: Math.min(pageSize, maxMessages - allMessages.length),
+                cursor: cursor
+            });
+
+            allMessages.push(...response.messages);
+
+            hasMore = response.hasMore && allMessages.length < maxMessages;
+            cursor = response.cursor;
+
+            // 避免API限流
+            if (hasMore) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+
+        console.log(`📋 获取到 ${allMessages.length} 条历史消息`);
+        return allMessages;
+    }
+
+    /**
+     * 获取单条消息详情
+     * @param {string} messageId - 消息ID
+     * @returns {Object} 消息详情
+     */
+    async getMessage(messageId) {
+        try {
+            const response = await this.apiRequest('GET', `/im/v1/messages/${messageId}`);
+            return response.data;
+        } catch (error) {
+            console.error('获取消息详情失败:', error);
+            throw new Error(`获取消息详情失败: ${error.message}`);
+        }
+    }
+
+    /**
+     * 解析消息内容
+     * @param {Object} message - 消息对象
+     * @returns {Object} 解析后的消息
+     */
+    parseMessage(message) {
+        const parsed = {
+            messageId: message.message_id,
+            messageType: message.msg_type,
+            createTime: message.create_time,
+            senderId: message.sender?.sender_id?.user_id || message.sender?.user_id,
+            senderType: message.sender?.sender_type || 'user',
+            chatId: message.chat_id,
+            content: null,
+            text: ''
+        };
+
+        try {
+            // 解析不同类型的消息
+            switch (message.msg_type) {
+                case 'text':
+                    const textContent = JSON.parse(message.content);
+                    parsed.text = textContent.text || '';
+                    parsed.content = textContent;
+                    break;
+
+                case 'post':
+                    const postContent = JSON.parse(message.content);
+                    parsed.text = this.extractPostText(postContent.post);
+                    parsed.content = postContent;
+                    break;
+
+                case 'interactive':
+                    const cardContent = JSON.parse(message.content);
+                    parsed.text = this.extractCardText(cardContent);
+                    parsed.content = cardContent;
+                    break;
+
+                default:
+                    parsed.content = message.content;
+                    parsed.text = `[${message.msg_type}类型消息]`;
+            }
+        } catch (error) {
+            console.error('解析消息内容失败:', error);
+            parsed.text = '[无法解析的消息]';
+        }
+
+        return parsed;
+    }
+
+    /**
+     * 提取富文本消息的文本内容
+     * @param {Object} post - 富文本对象
+     * @returns {string} 提取的文本
+     */
+    extractPostText(post) {
+        if (!post || !post.content) return '';
+
+        let text = '';
+        for (const element of post.content) {
+            if (element.tag === 'text') {
+                text += element.text || '';
+            } else if (element.tag === 'text_link') {
+                text += element.text || '';
+            } else if (element.tag === 'at') {
+                text += `@${element.user_id || ''}`;
+            } else if (element.tag === 'br') {
+                text += '\n';
+            }
+        }
+        return text;
+    }
+
+    /**
+     * 提取卡片消息的文本内容
+     * @param {Object} card - 卡片对象
+     * @returns {string} 提取的文本
+     */
+    extractCardText(card) {
+        if (!card) return '';
+
+        try {
+            // 简单的文本提取
+            return JSON.stringify(card, null, 2);
+        } catch (error) {
+            return '[卡片消息]';
+        }
+    }
+
+    /**
+     * 根据关键词搜索历史消息
+     * @param {string} chatId - 对话ID
+     * @param {string} keyword - 关键词
+     * @param {Object} options - 选项
+     * @param {number} options.maxMessages - 搜索的最大消息数
+     * @returns {Array} 匹配的消息列表
+     */
+    async searchMessages(chatId, keyword, options = {}) {
+        const {
+            maxMessages = 200
+        } = options;
+
+        const allMessages = await this.getAllChatHistory(chatId, {
+            maxMessages: maxMessages
+        });
+
+        const parsedMessages = allMessages.map(msg => this.parseMessage(msg));
+
+        // 搜索包含关键词的消息
+        const matched = parsedMessages.filter(msg => {
+            return msg.text.toLowerCase().includes(keyword.toLowerCase());
+        });
+
+        console.log(`🔍 搜索关键词"${keyword}"，找到 ${matched.length} 条匹配消息`);
+        return matched;
+    }
 }
 
 module.exports = FeishuBot;

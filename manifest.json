@@ -1,8 +1,8 @@
 {
   "name": "feishu-wiki-assistant",
   "displayName": "飞书知识库智能助手",
-  "version": "2.1.1",
-  "description": "OpenClaw与飞书机器人双向联动插件，实现知识库智能查询、自动归档、会议协作自动化",
+  "version": "2.1.2",
+  "description": "OpenClaw与飞书机器人双向联动插件，实现知识库智能查询、自动归档、会议协作自动化、历史对话总结",
   "author": "alvin-susu",
   "license": "MIT",
   "minOpenClawVersion": "2026.3.1",
@@ -11,6 +11,7 @@
     "feishu:api:write",
     "feishu:message:receive",
     "feishu:message:send",
+    "feishu:message:readonly",
     "feishu:wiki:read",
     "feishu:wiki:write",
     "feishu:document:read",

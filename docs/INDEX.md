@@ -44,6 +44,7 @@
 | 文档 | 说明 | 用途 |
 |------|------|------|
 | [**文档权限管理**](features/DOCUMENT-PERMISSIONS.md) | 自动协作者权限功能 | 功能详解 |
+| [**历史对话总结**](features/CONVERSATION-SUMMARY.md) | 基于聊天记录生成文档 | 功能详解 ⭐ 新功能 |
 
 ### 📊 测试报告
 
@@ -107,13 +108,15 @@ docs/
 │   └── releases/           # 发布说明目录
 │       └── RELEASE-NOTES-v2.1.1.md
 │
-├── ✨ features/             # 功能文档 (1个)
-│   └── DOCUMENT-PERMISSIONS.md - 文档权限功能
+├── ✨ features/             # 功能文档 (2个)
+│   ├── DOCUMENT-PERMISSIONS.md - 文档权限功能
+│   └── CONVERSATION-SUMMARY.md  - 历史对话总结 ⭐ 新功能
 │
-├── 📊 reports/              # 测试报告 (3个)
+├── 📊 reports/              # 测试报告 (4个)
 │   ├── ACTUAL-TEST-REPORT.md - 实际测试报告
 │   ├── TEST-STATUS.md      - 测试状态
-│   └── PERMISSION-FEATURE-TEST.md - 权限功能测试
+│   ├── PERMISSION-FEATURE-TEST.md - 权限功能测试
+│   └── DOCUMENT-REORGANIZATION.md - 文档整理报告
 │
 └── 🔍 INDEX.md             - 文档索引 (本文档)
 ```
@@ -125,11 +128,11 @@ docs/
 📖 用户指南类: 4个文档
 🔒 安全部署类: 4个文档
 📋 项目信息类: 5个文档
-✨ 功能文档类: 1个文档
-📊 测试报告类: 3个文档
+✨ 功能文档类: 2个文档
+📊 测试报告类: 4个文档
 🔍 索引导航: 1个文档
 ──────────────────────
-总计: 18个文档
+总计: 20个文档
 ```
 
 ### 文档组织优化
@@ -173,3 +176,4 @@ docs/
 
 **📅 文档最后更新**: 2026-03-09
 **🔄 文档结构优化**: v2.1 - 重组文档结构，优化分类目录
+**✨ 新功能**: 历史对话总结功能 - 基于聊天记录自动生成文档
