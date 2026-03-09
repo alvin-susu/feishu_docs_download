@@ -79,8 +79,13 @@ class AutoArchiver {
 
     /**
      * 创建文档并自动归档
+     * @param {string} title - 文档标题
+     * @param {string} content - 文档内容
+     * @param {Object} context - 对话上下文（用于设置权限）
+     * @param {string} context.chatType - 对话类型: 'private'|'group'
+     * @param {string} context.chatId - 对话ID（群聊）/ 用户ID（私聊）
      */
-    async create(title, content = '') {
+    async create(title, content = '', context = {}) {
         try {
             console.log(`📝 创建文档: ${title}`);
 
@@ -95,8 +100,16 @@ class AutoArchiver {
             // 识别分类
             const classification = this.classifyDocument(cleanTitle, content);
 
-            // 创建文档
-            const documentId = await this.bot.createDocument(cleanTitle, content);
+            // 创建文档并设置权限
+            const documentId = await this.bot.createDocument(
+                cleanTitle,
+                content,
+                {
+                    chatType: context.chatType,
+                    chatId: context.chatId,
+                    permissionType: 'edit' // 给对话成员编辑权限
+                }
+            );
 
             // 自动归档到目标分类
             const archiveResult = await this.archiveToCategory(
@@ -105,7 +118,7 @@ class AutoArchiver {
                 classification
             );
 
-            return this.formatCreationResult(cleanTitle, classification, archiveResult);
+            return this.formatCreationResult(cleanTitle, classification, archiveResult, context);
 
         } catch (error) {
             console.error('创建文档错误:', error);
@@ -325,8 +338,13 @@ class AutoArchiver {
 
     /**
      * 格式化创建结果
+     * @param {string} title - 文档标题
+     * @param {Object} classification - 分类信息
+     * @param {Object} archiveResult - 归档结果
+     * @param {Object} context - 对话上下文
+     * @param {string} context.chatType - 对话类型
      */
-    formatCreationResult(title, classification, archiveResult) {
+    formatCreationResult(title, classification, archiveResult, context = {}) {
         let response = `✅ 文档创建成功
 
 📄 文档标题：${title}
@@ -346,6 +364,14 @@ class AutoArchiver {
             response += `
 
 🔑 匹配关键词：${classification.matchedKeywords.join(', ')}`;
+        }
+
+        // 显示权限信息
+        if (context.chatId) {
+            const memberInfo = context.chatType === 'group' ? '群成员' : '您';
+            response += `
+
+🔐 权限：已自动添加${memberInfo}为协作者（可编辑）`;
         }
 
         response += `

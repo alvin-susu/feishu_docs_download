@@ -37,11 +37,14 @@ class MessageHandler {
 
             console.log(`📨 处理消息: ${text}`);
 
+            // 构建对话上下文（用于权限设置）
+            const context = this.buildContext(message);
+
             // 检查是否为命令
             const commandMatch = text.match(this.commandPattern);
             if (commandMatch) {
                 const [, command, args] = commandMatch;
-                return await this.handleCommand(command, args, message);
+                return await this.handleCommand(command, args, message, context);
             }
 
             // 智能识别用户意图
@@ -56,10 +59,10 @@ class MessageHandler {
                     return await this.contentSearcher.search(intent.query);
 
                 case 'create_document':
-                    return await this.autoArchiver.create(intent.title, intent.content);
+                    return await this.autoArchiver.create(intent.title, intent.content, context);
 
                 case 'add_todo':
-                    return await this.meetingAssistant.addTodo(intent.documentId, intent.todoText);
+                    return await this.meetingAssistant.addTodo(intent.documentId, intent.todoText, context);
 
                 case 'help':
                     return this.getHelpMessage();
@@ -72,6 +75,26 @@ class MessageHandler {
             console.error('处理消息错误:', error);
             return '抱歉，处理您的请求时出现错误，请稍后重试。';
         }
+    }
+
+    /**
+     * 构建对话上下文
+     * @param {Object} message - 消息对象
+     * @returns {Object} 上下文信息
+     */
+    buildContext(message) {
+        const context = {};
+
+        // 判断对话类型
+        if (message.chat_type === 'group') {
+            context.chatType = 'group';
+            context.chatId = message.chat_id;
+        } else if (message.chat_type === 'private' || message.sender_id) {
+            context.chatType = 'private';
+            context.chatId = message.sender_id || message.sender?.user_id;
+        }
+
+        return context;
     }
 
     /**
@@ -172,7 +195,7 @@ class MessageHandler {
     /**
      * 处理命令
      */
-    async handleCommand(command, args, message) {
+    async handleCommand(command, args, message, context) {
         switch (command) {
             case 'help':
                 return this.getHelpMessage();
@@ -191,7 +214,8 @@ class MessageHandler {
                 const parts = args.split(/[:：]/, 2);
                 return await this.autoArchiver.create(
                     parts[0]?.trim() || '未命名文档',
-                    parts[1]?.trim() || ''
+                    parts[1]?.trim() || '',
+                    context
                 );
 
             case 'stats':
@@ -204,7 +228,7 @@ class MessageHandler {
 
             case 'todo':
             case '待办':
-                return await this.meetingAssistant.addTodo(null, args);
+                return await this.meetingAssistant.addTodo(null, args, context);
 
             default:
                 return `未知命令: ${command}\n输入 /help 查看可用命令`;

@@ -182,13 +182,139 @@ class FeishuBot {
 
     /**
      * 创建文档
+     * @param {string} title - 文档标题
+     * @param {string} content - 文档内容
+     * @param {Object} options - 额外选项
+     * @param {Array<string>} options.collaborators - 协作者ID列表
+     * @param {string} options.chatType - 对话类型: 'private'|'group'
+     * @param {string} options.chatId - 对话ID（群聊）/ 用户ID（私聊）
+     * @param {string} options.permissionType - 权限类型: 'view'|'edit'|'comment'
      */
-    async createDocument(title, content) {
+    async createDocument(title, content, options = {}) {
         const response = await this.apiRequest('POST', '/docx/v1/documents', {
             title,
             content
         });
-        return response.data.document.document_id;
+        const documentId = response.data.document.document_id;
+
+        // 自动添加协作者权限
+        if (options.collaborators || options.chatId) {
+            await this.addDocumentCollaborators(documentId, options);
+        }
+
+        return documentId;
+    }
+
+    /**
+     * 添加文档协作者
+     * @param {string} documentId - 文档ID
+     * @param {Object} options - 选项
+     * @param {Array<string>} options.collaborators - 协作者ID列表
+     * @param {string} options.chatType - 对话类型
+     * @param {string} options.chatId - 对话ID
+     * @param {string} options.permissionType - 权限类型: 'view'|'edit'|'comment'
+     */
+    async addDocumentCollaborators(documentId, options = {}) {
+        try {
+            let userIds = [];
+
+            // 如果直接提供了协作者列表
+            if (options.collaborators && Array.isArray(options.collaborators)) {
+                userIds = options.collaborators;
+            }
+            // 如果提供了对话信息，自动获取成员
+            else if (options.chatId) {
+                userIds = await this.getConversationMembers(options.chatType, options.chatId);
+            }
+
+            if (userIds.length === 0) {
+                console.log('⚠️ 没有需要添加的协作者');
+                return;
+            }
+
+            // 添加文档权限
+            const permissionType = options.permissionType || 'edit'; // 默认给编辑权限
+            const permissions = userIds.map(userId => ({
+                user_id: userId,
+                type: permissionType,
+                notify: false // 不发送通知
+            }));
+
+            await this.apiRequest('POST', `/docx/v1/documents/${documentId}/permissions/batch_create`, {
+                permissions
+            });
+
+            console.log(`✅ 已为文档 ${documentId} 添加 ${userIds.length} 个协作者（权限：${permissionType}）`);
+
+        } catch (error) {
+            console.error('添加文档协作者失败:', error);
+            // 不抛出错误，避免影响文档创建主流程
+        }
+    }
+
+    /**
+     * 获取对话成员列表
+     * @param {string} chatType - 对话类型: 'private'|'group'
+     * @param {string} chatId - 对话ID（群聊）/ 用户ID（私聊）
+     * @returns {Array<string>} 用户ID列表
+     */
+    async getConversationMembers(chatType, chatId) {
+        try {
+            let userIds = [];
+
+            if (chatType === 'group') {
+                // 群聊：获取群成员列表
+                const response = await this.apiRequest('GET', `/contact/v3/groups/${chatId}/members`, {
+                    user_id_type: 'user_id',
+                    page_size: 50
+                });
+
+                if (response.data && response.data.items) {
+                    userIds = response.data.items
+                        .map(item => item.member_id_type === 'user' ? item.member_id : null)
+                        .filter(id => id !== null);
+                }
+            } else if (chatType === 'private') {
+                // 私聊：返回对话者ID
+                userIds = [chatId];
+            }
+
+            console.log(`📋 从${chatType === 'group' ? '群聊' : '私聊'}获取到 ${userIds.length} 个成员`);
+            return userIds;
+
+        } catch (error) {
+            console.error('获取对话成员失败:', error);
+            return [];
+        }
+    }
+
+    /**
+     * 获取知识库所有节点（递归）
+     * @param {string} wikiSpaceId - 知识库ID
+     * @returns {Array} 节点列表
+     */
+    async getAllWikiNodes(wikiSpaceId) {
+        const allNodes = [];
+        const queue = [''];
+
+        while (queue.length > 0) {
+            const parentNodeToken = queue.shift();
+            const response = await this.getWikiNode(wikiSpaceId, parentNodeToken);
+
+            if (response.data && response.data.items) {
+                const nodes = response.data.items;
+                allNodes.push(...nodes);
+
+                // 将节点类型的节点加入队列，继续获取子节点
+                nodes.forEach(node => {
+                    if (node.obj_type === 'node') {
+                        queue.push(node.node_token);
+                    }
+                });
+            }
+        }
+
+        return allNodes;
     }
 
     /**

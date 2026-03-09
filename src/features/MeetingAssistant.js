@@ -199,8 +199,13 @@ class MeetingAssistant {
 
     /**
      * 生成会议文档
+     * @param {Object} meetingInfo - 会议信息
+     * @param {Array} messages - 消息列表
+     * @param {Object} context - 对话上下文（用于设置权限）
+     * @param {string} context.chatType - 对话类型: 'private'|'group'
+     * @param {string} context.chatId - 对话ID（群聊）/ 用户ID（私聊）
      */
-    async generateMeetingDocument(meetingInfo, messages) {
+    async generateMeetingDocument(meetingInfo, messages, context = {}) {
         try {
             console.log(`📝 生成会议文档: ${meetingInfo.title}`);
 
@@ -210,10 +215,15 @@ class MeetingAssistant {
             // 生成文档内容
             const documentContent = this.formatMeetingDocument(meetingData);
 
-            // 创建文档
+            // 创建文档并设置权限
             const documentId = await this.bot.createDocument(
                 meetingData.title,
-                documentContent
+                documentContent,
+                {
+                    chatType: context.chatType,
+                    chatId: context.chatId,
+                    permissionType: 'edit' // 给对话成员编辑权限
+                }
             );
 
             // 自动归档
@@ -226,16 +236,18 @@ class MeetingAssistant {
 
             await this.archiveMeetingDocument(documentId, meetingData.title, classification);
 
+            const memberInfo = context.chatType === 'group' ? '群成员' : '您';
             return `✅ 会议文档已生成
 
 📄 文档标题：${meetingData.title}
 📅 会议时间：${meetingData.date}
 👥 参与人数：${meetingData.participants.length}
 ✅ 待办事项：${meetingData.todos.length}
+🔐 权限：已自动添加${memberInfo}为协作者
 
 🔗 查看文档：[点击打开](https://example.com/doc/${documentId})
 
-💡 文档已自动归档到会议记录分类，方便后续查看和跟进。`;
+💡 文档已自动归档到会议记录分类，${memberInfo}可以直接编辑和协作。`;
 
         } catch (error) {
             console.error('生成会议文档错误:', error);
