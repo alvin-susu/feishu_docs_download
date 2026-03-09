@@ -17,6 +17,16 @@ class FeishuWikiAssistant {
         this.messageHandler = new MessageHandler(this);
 
         this.isInitialized = false;
+        this.toolExecutor = null;
+    }
+
+    /**
+     * 设置工具执行器（由 OpenClaw 运行时调用）
+     * @param {Function} executor - 工具执行函数
+     */
+    setToolExecutor(executor) {
+        this.toolExecutor = executor;
+        console.log('✅ 工具执行器已设置 (feishu_perm 可用)');
     }
 
     /**

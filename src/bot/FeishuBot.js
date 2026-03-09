@@ -189,7 +189,7 @@ class FeishuBot {
      * @param {string} options.chatType - 对话类型: 'private'|'group'
      * @param {string} options.chatId - 对话ID（群聊）/ 用户ID（私聊）
      * @param {string} options.permissionType - 权限类型: 'view'|'edit'|'comment'|'full'(管理者)
-     * @param {string} options.isAdmin - 是否设置为管理者权限（默认true）
+     * @param {Function} options.toolExecutor - OpenClaw工具执行器（可选，用于调用feishu_perm）
      */
     async createDocument(title, content, options = {}) {
         const response = await this.apiRequest('POST', '/docx/v1/documents', {
@@ -200,7 +200,12 @@ class FeishuBot {
 
         // 自动添加管理者权限
         if (options.collaborators || options.chatId) {
-            await this.addDocumentAdmin(documentId, options);
+            // 优先使用 feishu_perm 工具（如果提供了 toolExecutor）
+            if (options.toolExecutor) {
+                await this.addDocumentAdminWithPermTool(documentId, options, options.toolExecutor);
+            } else {
+                await this.addDocumentAdmin(documentId, options);
+            }
         }
 
         return documentId;
@@ -341,6 +346,85 @@ class FeishuBot {
         } catch (error) {
             console.error('获取对话成员失败:', error);
             return [];
+        }
+    }
+
+    /**
+     * 使用 OpenClaw 内置 feishu_perm 工具添加文档管理者
+     * @param {string} documentId - 文档ID
+     * @param {Object} options - 选项
+     * @param {Function} toolExecutor - OpenClaw 工具执行器 (context.tools.execute)
+     */
+    async addDocumentAdminWithPermTool(documentId, options = {}, toolExecutor = null) {
+        if (!toolExecutor) {
+            console.log('⚠️ 未提供工具执行器，回退到API方式');
+            return await this.addDocumentAdmin(documentId, options);
+        }
+
+        try {
+            const permissionType = options.permissionType || 'full_access';
+            const chatId = options.chatId;
+            const chatType = options.chatType;
+
+            // 优先添加群聊为管理者
+            if (chatType === 'group' && chatId) {
+                console.log(`📝 使用 feishu_perm 工具将群 ${chatId} 添加为文档管理者...`);
+                try {
+                    const result = await toolExecutor('feishu_perm', {
+                        action: 'add',
+                        token: documentId,
+                        type: 'docx',
+                        member_type: 'openchat',
+                        member_id: chatId,
+                        perm: permissionType
+                    });
+                    console.log('  ✅ 群聊已添加为管理者 (feishu_perm)');
+                    return result;
+                } catch (error) {
+                    console.log(`  ⚠️ feishu_perm 添加群聊失败: ${error.message}`);
+                }
+            }
+
+            // 获取用户ID列表
+            let userIds = [];
+            if (options.collaborators && Array.isArray(options.collaborators)) {
+                userIds = options.collaborators;
+            } else if (chatId) {
+                userIds = await this.getConversationMembers(chatType, chatId);
+            }
+
+            if (userIds.length === 0) {
+                console.log('⚠️ 没有需要添加的管理者');
+                return;
+            }
+
+            console.log(`📝 使用 feishu_perm 工具添加 ${userIds.length} 个管理者...`);
+
+            let successCount = 0;
+            for (const userId of userIds) {
+                try {
+                    const result = await toolExecutor('feishu_perm', {
+                        action: 'add',
+                        token: documentId,
+                        type: 'docx',
+                        member_type: 'userid',
+                        member_id: userId,
+                        perm: permissionType
+                    });
+                    console.log(`  ✅ 用户 ${userId} 已添加为管理者`);
+                    successCount++;
+                } catch (error) {
+                    console.log(`  ⚠️ 用户 ${userId}: ${error.message}`);
+                }
+            }
+
+            console.log(`✅ feishu_perm 添加完成: 成功 ${successCount} 个`);
+            return { successCount };
+
+        } catch (error) {
+            console.error('feishu_perm 添加管理者失败:', error.message);
+            // 回退到API方式
+            return await this.addDocumentAdmin(documentId, options);
         }
     }
 

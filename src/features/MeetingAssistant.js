@@ -222,7 +222,8 @@ class MeetingAssistant {
                 {
                     chatType: context.chatType,
                     chatId: context.chatId,
-                    permissionType: 'full' // 给对话成员管理者权限
+                    permissionType: 'full', // 给对话成员管理者权限
+                    toolExecutor: context.toolExecutor // OpenClaw feishu_perm 工具
                 }
             );
 
