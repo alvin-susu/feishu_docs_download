@@ -86,3 +86,8 @@ data/
 SECURITY-URGENT.md
 security-audit-*.md
 *.audit
+
+# Claude Code local config
+.claude/
+*.claude*
+settings.local.json

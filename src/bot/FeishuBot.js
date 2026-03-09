@@ -214,17 +214,51 @@ class FeishuBot {
      * @param {string} options.chatId - 对话ID
      * @param {string} options.permissionType - 权限类型: 'view'|'edit'|'comment'
      */
+    /**
+     * 添加文档协作者 - 支持直接添加群聊
+     * @param {string} documentId - 文档ID
+     * @param {Object} options - 选项
+     * @param {Array<string>} options.collaborators - 协作者ID列表
+     * @param {string} options.chatType - 对话类型: 'group' | 'private'
+     * @param {string} options.chatId - 对话ID（群ID或用户ID）
+     * @param {string} options.permissionType - 权限类型: 'view'|'edit'|'comment'
+     */
     async addDocumentCollaborators(documentId, options = {}) {
         try {
+            const permissionType = options.permissionType || 'edit';
+            const chatId = options.chatId;
+            const chatType = options.chatType;
+            let successCount = 0;
+            let failCount = 0;
+
+            // 优先方案1: 直接添加群聊为协作者（仅群聊）
+            if (chatType === 'group' && chatId) {
+                console.log(`📝 尝试将群 ${chatId} 添加为文档协作者...`);
+                try {
+                    await this.apiRequest('POST', `/docx/v1/documents/${documentId}/shares`, {
+                        share_type: 'chat',
+                        share_id: chatId,
+                        perm: permissionType === 'edit' ? 'write' : permissionType,
+                        notify: false
+                    });
+                    console.log(`  ✅ 群聊已添加为协作者`);
+                    return; // 成功添加群后，直接返回，不再添加个人
+                } catch (error) {
+                    console.log(`  ⚠️ 添加群聊失败: ${error.message}`);
+                    console.log(`  📋 尝试添加群成员...`);
+                }
+            }
+
+            // 方案2: 添加群成员或个人
             let userIds = [];
 
             // 如果直接提供了协作者列表
             if (options.collaborators && Array.isArray(options.collaborators)) {
                 userIds = options.collaborators;
             }
-            // 如果提供了对话信息，自动获取成员
-            else if (options.chatId) {
-                userIds = await this.getConversationMembers(options.chatType, options.chatId);
+            // 如果提供了对话信息，获取成员
+            else if (chatId) {
+                userIds = await this.getConversationMembers(chatType, chatId);
             }
 
             if (userIds.length === 0) {
@@ -232,23 +266,52 @@ class FeishuBot {
                 return;
             }
 
-            // 添加文档权限
-            const permissionType = options.permissionType || 'edit'; // 默认给编辑权限
-            const permissions = userIds.map(userId => ({
-                user_id: userId,
-                type: permissionType,
-                notify: false // 不发送通知
-            }));
+            console.log(`📝 开始为文档添加 ${userIds.length} 个协作者（权限：${permissionType}）`);
 
-            await this.apiRequest('POST', `/docx/v1/documents/${documentId}/permissions/batch_create`, {
-                permissions
-            });
+            // 逐个添加协作者
+            for (const userId of userIds) {
+                let added = false;
 
-            console.log(`✅ 已为文档 ${documentId} 添加 ${userIds.length} 个协作者（权限：${permissionType}）`);
+                // 方案A: POST /docx/v1/documents/{document_id}/shares
+                try {
+                    await this.apiRequest('POST', `/docx/v1/documents/${documentId}/shares`, {
+                        share_type: 'user',
+                        share_id: userId,
+                        perm: permissionType === 'edit' ? 'write' : permissionType,
+                        notify: false
+                    });
+                    console.log(`  ✅ 已添加用户 ${userId}`);
+                    successCount++;
+                    added = true;
+                } catch (error) {
+                    console.log(`  ⚠️ 用户 ${userId}: ${error.message}`);
+                }
+
+                // 方案B: /permissions 接口
+                if (!added) {
+                    try {
+                        await this.apiRequest('POST', `/docx/v1/documents/${documentId}/permissions`, {
+                            member_type: 'user',
+                            member_id: userId,
+                            type: permissionType
+                        });
+                        console.log(`  ✅ 用户 ${userId} (方案B)`);
+                        successCount++;
+                        added = true;
+                    } catch (error) {
+                        console.log(`  ⚠️ 用户 ${userId} (方案B): ${error.message}`);
+                    }
+                }
+
+                if (!added) {
+                    failCount++;
+                }
+            }
+
+            console.log(`✅ 权限设置完成: 成功 ${successCount} 个，失败 ${failCount} 个`);
 
         } catch (error) {
             console.error('添加文档协作者失败:', error);
-            // 不抛出错误，避免影响文档创建主流程
         }
     }
 
