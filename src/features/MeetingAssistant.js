@@ -222,7 +222,7 @@ class MeetingAssistant {
                 {
                     chatType: context.chatType,
                     chatId: context.chatId,
-                    permissionType: 'edit' // 给对话成员编辑权限
+                    permissionType: 'full' // 给对话成员管理者权限
                 }
             );
 

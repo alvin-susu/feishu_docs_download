@@ -7,7 +7,18 @@
       "Bash(git push)",
       "Bash(npm install:*)",
       "Bash(node:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(ENCRYPTION_KEY=HMpFDeaT1B1uesCtZlOaHgaQXMH2KilP node scripts/test-document-permission.js)",
+      "Bash(rsync -av --delete --exclude='node_modules' --exclude='.git' --exclude='.env' --exclude='data/*.json' /home/sudi/WebstormProjects/feishu_docs_download/ ~/.openclaw/workspace/skills/feishu-wiki-assistant/)",
+      "mcp__web-reader__webReader",
+      "WebSearch",
+      "Bash(pgrep -a openclaw)",
+      "Bash(netstat -tlnp 2>/dev/null | grep -E '18789|8080' || ss -tlnp | grep -E '18789|8080')",
+      "Bash(openclaw status 2>&1)",
+      "Bash(rsync -av --exclude='node_modules' --exclude='.git' --exclude='.env' --exclude='data/*.json' /home/sudi/WebstormProjects/feishu_docs_download/src/bot/FeishuBot.js ~/.openclaw/workspace/skills/feishu-wiki-assistant/src/bot/)",
+      "Bash(ls -la /home/sudi/WebstormProjects/feishu_docs_download/*.md 2>/dev/null | head -20)",
+      "Bash(rsync -av --exclude='node_modules' --exclude='.git' --exclude='.env' --exclude='data/*.json' /home/sudi/WebstormProjects/feishu_docs_download/manifest.json ~/.openclaw/workspace/skills/feishu-wiki-assistant/)",
+      "Bash(rsync -av --exclude='node_modules' --exclude='.git' --exclude='.env' --exclude='data/*.json' /home/sudi/WebstormProjects/feishu_docs_download/manifest.json /home/sudi/WebstormProjects/feishu_docs_download/README.md ~/.openclaw/workspace/skills/feishu-wiki-assistant/)"
     ],
     "deny": [],
     "ask": []

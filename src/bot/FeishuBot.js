@@ -188,7 +188,8 @@ class FeishuBot {
      * @param {Array<string>} options.collaborators - 协作者ID列表
      * @param {string} options.chatType - 对话类型: 'private'|'group'
      * @param {string} options.chatId - 对话ID（群聊）/ 用户ID（私聊）
-     * @param {string} options.permissionType - 权限类型: 'view'|'edit'|'comment'
+     * @param {string} options.permissionType - 权限类型: 'view'|'edit'|'comment'|'full'(管理者)
+     * @param {string} options.isAdmin - 是否设置为管理者权限（默认true）
      */
     async createDocument(title, content, options = {}) {
         const response = await this.apiRequest('POST', '/docx/v1/documents', {
@@ -197,52 +198,44 @@ class FeishuBot {
         });
         const documentId = response.data.document.document_id;
 
-        // 自动添加协作者权限
+        // 自动添加管理者权限
         if (options.collaborators || options.chatId) {
-            await this.addDocumentCollaborators(documentId, options);
+            await this.addDocumentAdmin(documentId, options);
         }
 
         return documentId;
     }
 
     /**
-     * 添加文档协作者
+     * 添加文档管理者 - 支持直接添加群聊
      * @param {string} documentId - 文档ID
      * @param {Object} options - 选项
-     * @param {Array<string>} options.collaborators - 协作者ID列表
-     * @param {string} options.chatType - 对话类型
-     * @param {string} options.chatId - 对话ID
-     * @param {string} options.permissionType - 权限类型: 'view'|'edit'|'comment'
-     */
-    /**
-     * 添加文档协作者 - 支持直接添加群聊
-     * @param {string} documentId - 文档ID
-     * @param {Object} options - 选项
-     * @param {Array<string>} options.collaborators - 协作者ID列表
+     * @param {Array<string>} options.collaborators - 管理者ID列表
      * @param {string} options.chatType - 对话类型: 'group' | 'private'
      * @param {string} options.chatId - 对话ID（群ID或用户ID）
-     * @param {string} options.permissionType - 权限类型: 'view'|'edit'|'comment'
+     * @param {string} options.permissionType - 权限类型: 'view'|'edit'|'comment'|'full'
      */
-    async addDocumentCollaborators(documentId, options = {}) {
+    async addDocumentAdmin(documentId, options = {}) {
         try {
-            const permissionType = options.permissionType || 'edit';
+            // 默认使用管理者权限 (full)
+            const permissionType = options.permissionType || 'full';
             const chatId = options.chatId;
             const chatType = options.chatType;
             let successCount = 0;
             let failCount = 0;
 
-            // 优先方案1: 直接添加群聊为协作者（仅群聊）
+            // 优先方案1: 直接添加群聊为管理者（仅群聊）
             if (chatType === 'group' && chatId) {
-                console.log(`📝 尝试将群 ${chatId} 添加为文档协作者...`);
+                console.log(`📝 尝试将群 ${chatId} 添加为文档管理者...`);
                 try {
                     await this.apiRequest('POST', `/docx/v1/documents/${documentId}/shares`, {
                         share_type: 'chat',
                         share_id: chatId,
-                        perm: permissionType === 'edit' ? 'write' : permissionType,
+                        perm: 'full',  // 管理者权限
                         notify: false
                     });
-                    console.log(`  ✅ 群聊已添加为协作者`);
-                    return; // 成功添加群后，直接返回，不再添加个人
+                    console.log(`  ✅ 群聊已添加为管理者`);
+                    return;
                 } catch (error) {
                     console.log(`  ⚠️ 添加群聊失败: ${error.message}`);
                     console.log(`  📋 尝试添加群成员...`);
@@ -252,7 +245,7 @@ class FeishuBot {
             // 方案2: 添加群成员或个人
             let userIds = [];
 
-            // 如果直接提供了协作者列表
+            // 如果直接提供了管理者列表
             if (options.collaborators && Array.isArray(options.collaborators)) {
                 userIds = options.collaborators;
             }
@@ -262,40 +255,40 @@ class FeishuBot {
             }
 
             if (userIds.length === 0) {
-                console.log('⚠️ 没有需要添加的协作者');
+                console.log('⚠️ 没有需要添加的管理者');
                 return;
             }
 
-            console.log(`📝 开始为文档添加 ${userIds.length} 个协作者（权限：${permissionType}）`);
+            console.log(`📝 开始为文档添加 ${userIds.length} 个管理者（权限：${permissionType}）`);
 
-            // 逐个添加协作者
+            // 逐个添加管理者
             for (const userId of userIds) {
                 let added = false;
 
-                // 方案A: POST /docx/v1/documents/{document_id}/shares
+                // 方案A: POST /docx/v1/documents/{document_id}/shares (full权限)
                 try {
                     await this.apiRequest('POST', `/docx/v1/documents/${documentId}/shares`, {
                         share_type: 'user',
                         share_id: userId,
-                        perm: permissionType === 'edit' ? 'write' : permissionType,
+                        perm: 'full',  // 管理者权限
                         notify: false
                     });
-                    console.log(`  ✅ 已添加用户 ${userId}`);
+                    console.log(`  ✅ 已添加用户 ${userId} 为管理者`);
                     successCount++;
                     added = true;
                 } catch (error) {
                     console.log(`  ⚠️ 用户 ${userId}: ${error.message}`);
                 }
 
-                // 方案B: /permissions 接口
+                // 方案B: /permissions 接口 (full类型)
                 if (!added) {
                     try {
                         await this.apiRequest('POST', `/docx/v1/documents/${documentId}/permissions`, {
                             member_type: 'user',
                             member_id: userId,
-                            type: permissionType
+                            type: 'full'  // 管理者权限
                         });
-                        console.log(`  ✅ 用户 ${userId} (方案B)`);
+                        console.log(`  ✅ 用户 ${userId} 为管理者 (方案B)`);
                         successCount++;
                         added = true;
                     } catch (error) {
