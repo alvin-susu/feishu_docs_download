@@ -96,11 +96,6 @@ class MessageHandler {
             context.chatId = message.sender_id || message.sender?.user_id;
         }
 
-        // 添加工具执行器（用于调用 feishu_perm 等内置工具）
-        if (this.assistant && this.assistant.toolExecutor) {
-            context.toolExecutor = this.assistant.toolExecutor;
-        }
-
         return context;
     }
 

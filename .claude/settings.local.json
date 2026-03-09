@@ -18,7 +18,8 @@
       "Bash(rsync -av --exclude='node_modules' --exclude='.git' --exclude='.env' --exclude='data/*.json' /home/sudi/WebstormProjects/feishu_docs_download/src/bot/FeishuBot.js ~/.openclaw/workspace/skills/feishu-wiki-assistant/src/bot/)",
       "Bash(ls -la /home/sudi/WebstormProjects/feishu_docs_download/*.md 2>/dev/null | head -20)",
       "Bash(rsync -av --exclude='node_modules' --exclude='.git' --exclude='.env' --exclude='data/*.json' /home/sudi/WebstormProjects/feishu_docs_download/manifest.json ~/.openclaw/workspace/skills/feishu-wiki-assistant/)",
-      "Bash(rsync -av --exclude='node_modules' --exclude='.git' --exclude='.env' --exclude='data/*.json' /home/sudi/WebstormProjects/feishu_docs_download/manifest.json /home/sudi/WebstormProjects/feishu_docs_download/README.md ~/.openclaw/workspace/skills/feishu-wiki-assistant/)"
+      "Bash(rsync -av --exclude='node_modules' --exclude='.git' --exclude='.env' --exclude='data/*.json' /home/sudi/WebstormProjects/feishu_docs_download/manifest.json /home/sudi/WebstormProjects/feishu_docs_download/README.md ~/.openclaw/workspace/skills/feishu-wiki-assistant/)",
+      "Bash(rsync -av --exclude='node_modules' --exclude='.git' --exclude='.env' --exclude='data/*.json' /home/sudi/WebstormProjects/feishu_docs_download/src/ ~/.openclaw/workspace/skills/feishu-wiki-assistant/src/)"
     ],
     "deny": [],
     "ask": []
