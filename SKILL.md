@@ -30,7 +30,7 @@
 
 ### 1. 环境要求
 - Node.js 16.0.0 或更高版本
-- OpenClaw 2026.3.1+
+- OpenClaw 2026.3.8+
 - 飞书开放平台账号
 
 ### 2. 安装插件
@@ -240,6 +240,11 @@ node scripts/account-cli.js delete <账号ID>
 
 ## 📝 更新日志
 
+### v2.1.3 (2026-03-10)
+- 🔄 集成 OpenClaw 内置 feishu_perm 工具管理文档权限
+- 🔒 改用管理者权限(full)而非协作者权限
+- 🧹 移除 toolExecutor 相关代码
+
 ### v2.1.1 (2026-03-08)
 - 🐛 修复accounts.json数据格式兼容性问题
 - ✨ 添加旧数据格式自动检测和迁移功能
@@ -275,7 +280,7 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 ---
 
 **作者**: alvin-susu
-**版本**: 2.0.0
+**版本**: 2.1.3
 **状态**: ✅ 生产就绪
 **官网**: [GitHub](https://github.com/alvin-susu/feishu_docs_download)
 **安全合规**: ✅ 通过安全审计

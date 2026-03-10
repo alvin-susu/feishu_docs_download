@@ -110,13 +110,12 @@ test_case "检查MeetingAssistant模块" "test -f '$SKILL_DIR/src/features/Meeti
 echo -e "\n${YELLOW}📋 第五阶段：OpenClaw集成测试${NC}"
 separator()
 
-test_case "检查manifest.json" "test -f '$SKILL_DIR/manifest.json'"
 test_case "检查skill.json" "test -f '$SKILL_DIR/skill.json'"
 test_case "检查package.json" "test -f '$SKILL_DIR/package.json'"
 
-# 验证manifest.json中的版本
-MANIFEST_VERSION=$(grep '"version"' $SKILL_DIR/manifest.json | head -1 | grep -o '[0-9.]*')
-echo "当前版本: $MANIFEST_VERSION"
+# 验证skill.json中的版本
+SKILL_VERSION=$(grep '"version"' $SKILL_DIR/skill.json | head -1 | grep -o '[0-9.]*')
+echo "当前版本: $SKILL_VERSION"
 
 # ============ 第六阶段：文档完整性测试 ============
 echo -e "\n${YELLOW}📋 第六阶段：文档完整性测试${NC}"
