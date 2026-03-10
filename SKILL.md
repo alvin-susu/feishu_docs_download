@@ -1,3 +1,16 @@
+---
+name: feishu-docs-assistant
+description: OpenClaw × 飞书机器人智能联动插件，实现知识库智能查询、自动归档、会议协作自动化。支持多账号管理，本地加密存储。
+homepage: https://github.com/alvin-susu/feishu_docs_download
+metadata:
+  clawdbot:
+    emoji: "📚"
+    requires:
+      bins: ["node"]
+      env: ["FEISHU_APP_ID", "FEISHU_APP_SECRET", "ENCRYPTION_KEY"]
+    primaryEnv: "FEISHU_APP_ID"
+---
+
 # 飞书知识库智能助手
 
 > **安全合规说明**: 本插件仅为API集成工具，不收集、存储或传输任何用户数据。所有凭证均存储在本地环境变量中，遵循最小权限原则。
@@ -36,7 +49,7 @@
 ### 2. 安装插件
 ```bash
 # 通过ClawHub安装
-clawhub install feishu-wiki-assistant
+clawhub install feishu-docs-assistant
 
 # 重启OpenClaw生效
 openclaw
