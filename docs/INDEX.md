@@ -1,8 +1,8 @@
 # 📚 飞书知识库智能助手 - 文档中心
 
 **文档版本**: v2.1
-**最后更新**: 2026-03-09
-**文档组织**: 分类目录结构
+**最后更新**: 2026-03-10
+**文档组织**: 精简分类结构
 
 ---
 
@@ -15,8 +15,8 @@
 | 文档 | 说明 | 适用对象 |
 |------|------|----------|
 | [**用户配置指南**](guides/USER-GUIDE.md) | 完整的用户安装和配置教程 | 新用户 |
-| [**调试指南**](guides/DEBUG-GUIDE.md) | 开发调试和问题排查 | 开发者 |
 | [**使用说明**](guides/USAGE.md) | 功能使用指南 | 所有用户 |
+| [**调试指南**](guides/DEBUG-GUIDE.md) | 开发调试和问题排查 | 开发者 |
 | [**演示指南**](guides/DEMO-GUIDE.md) | 完整功能演示和测试 | 测试人员 |
 
 ### 🔒 安全与部署
@@ -24,35 +24,15 @@
 | 文档 | 说明 | 重要性 |
 |------|------|--------|
 | [**安全指南**](security/SECURITY-GUIDE.md) | 完整的安全配置和应急处理 | 🔴 必读 |
-| [**安全政策**](security/SECURITY.md) | 隐私政策和安全承诺 | 🔴 必读 |
-| [**安全分析报告**](security/SECURITY-ANALYSIS.md) | 安全扫描和误报说明 | ⭐ 推荐 |
 | [**部署指南**](deployment/DEPLOYMENT-GUIDE.md) | 完整的部署和配置说明 | ⭐ 推荐 |
 
 ### 📋 项目信息
 
 | 文档 | 说明 | 用途 |
 |------|------|------|
-| [**项目报告**](about/PROJECT-REPORTS.md) | 项目改进历程和成就总结 | 了解项目 |
 | [**更新日志**](about/CHANGELOG.md) | 版本更新记录 | 了解新功能 |
 | [**多账号管理**](about/MULTI-ACCOUNT.md) | 多机器人账号配置 | 高级功能 |
 | [**目录结构说明**](about/DIRECTORY-STRUCTURE.md) | 项目目录和文件说明 | 开发参考 |
-| [**实现总结**](about/IMPLEMENTATION-SUMMARY.md) | 技术实现和架构说明 | 开发者 |
-| [**发布说明**](about/releases/) | 各版本发布说明 | 查看变更 |
-
-### ✨ 功能文档
-
-| 文档 | 说明 | 用途 |
-|------|------|------|
-| [**文档权限管理**](features/DOCUMENT-PERMISSIONS.md) | 自动协作者权限功能 | 功能详解 |
-| [**历史对话总结**](features/CONVERSATION-SUMMARY.md) | 基于聊天记录生成文档 | 功能详解 ⭐ 新功能 |
-
-### 📊 测试报告
-
-| 文档 | 说明 | 用途 |
-|------|------|------|
-| [**实际测试报告**](reports/ACTUAL-TEST-REPORT.md) | 真实环境测试结果 | 验证功能 |
-| [**测试状态报告**](reports/TEST-STATUS.md) | 当前测试状态和进度 | 了解进度 |
-| [**权限功能测试**](reports/PERMISSION-FEATURE-TEST.md) | 权限功能测试指南 | 测试验证 |
 
 ## 🎯 按使用场景查找
 
@@ -76,11 +56,6 @@
 2. 🚀 查看 [部署指南](deployment/DEPLOYMENT-GUIDE.md) 的生产环境配置
 3. 🔧 参考调试指南进行高级配置
 
-### 了解项目详情
-1. 📊 阅读 [项目报告](about/PROJECT-REPORTS.md) 了解改进历程
-2. 📝 查看 [更新日志](about/CHANGELOG.md) 了解版本变化
-3. 📁 参考 [目录结构说明](about/DIRECTORY-STRUCTURE.md) 了解项目架构
-
 ## 📁 文档目录结构
 
 ```
@@ -91,32 +66,16 @@ docs/
 │   ├── USAGE.md            - 使用说明
 │   └── DEMO-GUIDE.md       - 演示指南
 │
-├── 🔒 security/             # 安全相关 (3个)
-│   ├── SECURITY-GUIDE.md   - 安全配置指南
-│   ├── SECURITY.md         - 安全政策和隐私承诺
-│   └── SECURITY-ANALYSIS.md - 安全分析报告
+├── 🔒 security/             # 安全相关 (1个)
+│   └── SECURITY-GUIDE.md   - 安全配置指南
 │
 ├── 🚀 deployment/           # 部署相关 (1个)
 │   └── DEPLOYMENT-GUIDE.md - 部署指南
 │
-├── 📋 about/                # 项目信息 (5个)
-│   ├── PROJECT-REPORTS.md  - 项目报告
+├── 📋 about/                # 项目信息 (3个)
 │   ├── CHANGELOG.md        - 更新日志
 │   ├── MULTI-ACCOUNT.md    - 多账号功能
-│   ├── DIRECTORY-STRUCTURE.md - 目录结构
-│   ├── IMPLEMENTATION-SUMMARY.md - 实现总结
-│   └── releases/           # 发布说明目录
-│       └── RELEASE-NOTES-v2.1.1.md
-│
-├── ✨ features/             # 功能文档 (2个)
-│   ├── DOCUMENT-PERMISSIONS.md - 文档权限功能
-│   └── CONVERSATION-SUMMARY.md  - 历史对话总结 ⭐ 新功能
-│
-├── 📊 reports/              # 测试报告 (4个)
-│   ├── ACTUAL-TEST-REPORT.md - 实际测试报告
-│   ├── TEST-STATUS.md      - 测试状态
-│   ├── PERMISSION-FEATURE-TEST.md - 权限功能测试
-│   └── DOCUMENT-REORGANIZATION.md - 文档整理报告
+│   └── DIRECTORY-STRUCTURE.md - 目录结构
 │
 └── 🔍 INDEX.md             - 文档索引 (本文档)
 ```
@@ -126,22 +85,19 @@ docs/
 ### 分类统计
 ```
 📖 用户指南类: 4个文档
-🔒 安全部署类: 4个文档
-📋 项目信息类: 5个文档
-✨ 功能文档类: 2个文档
-📊 测试报告类: 4个文档
+🔒 安全部署类: 2个文档
+📋 项目信息类: 3个文档
 🔍 索引导航: 1个文档
 ──────────────────────
-总计: 20个文档
+总计: 10个文档 (已精简)
 ```
 
 ### 文档组织优化
 - ✅ **按功能类型分类组织**
-- ✅ **5个主要目录，结构清晰**
-- ✅ **测试报告独立目录**
-- ✅ **发布说明独立管理**
-- ✅ **功能文档独立分类**
-- ✅ **安全文档集中管理**
+- ✅ **4个主要目录，结构清晰**
+- ✅ **移除内部/临时文档**
+- ✅ **保留核心用户文档**
+- ✅ **精简结构，易于查找**
 
 ## 📝 文档维护说明
 
@@ -174,6 +130,5 @@ docs/
 
 **💡 提示**: 如果您找不到需要的文档，请查看项目主目录的 [README.md](../README.md) 或提交Issue请求添加新文档。
 
-**📅 文档最后更新**: 2026-03-09
-**🔄 文档结构优化**: v2.1 - 重组文档结构，优化分类目录
-**✨ 新功能**: 历史对话总结功能 - 基于聊天记录自动生成文档
+**📅 文档最后更新**: 2026-03-10
+**🔄 文档结构优化**: v2.1 - 精简文档结构，移除内部文档
